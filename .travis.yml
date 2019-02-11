@@ -9,10 +9,10 @@ install:
   - docker build -t travis-ci-build-stages-demo .
   - docker run -d -it -p 80:8080 --name=travis-ci-build-stages-demo travis-ci-build-stages-demo
 before_script:
-  - pip install -r requirements.txt
-  - pip install mock
-  - pip install requests
-  - pip install feedparser
+#  - pip install -r requirements.txt
+#  - pip install mock
+#  - pip install requests
+#  - pip install feedparser
 script:
-  - docker ps | grep -q blog
-  - python tests.py
+  - docker ps | grep -q travis-ci-build-stages-demo
+#  - python tests.py
