@@ -1,29 +1,26 @@
-env:
-global:
-- COMMIT=${TRAVIS_COMMIT::8}
-sudo: true
-dist: xenial
+sudo: required 
+#dist: xenial
 language: python
 python:
   - 2.7
 services:
   - docker
-install:
-  - docker build -t travis-ci-build-stages-demo .
-  - docker run -d -it -p 80:8080 --name=travis-ci-build-stages-demo travis-ci-build-stages-demo
-before_script:
-#  - pip install -r requirements.txt
-#  - pip install mock
-#  - pip install requests
-#  - pip install feedparser
+
+env:
+global:
+- COMMIT=${TRAVIS_COMMIT::8}
+- REPO="$DOCKER_USER/travis-ci-build-stages-demo"
+
+before_install:
+  - docker build -t $REPO:$COMMIT .
+  - docker run -d --name travis-ci-build-stages-demo $REPO:$COMMIT
+  
 script:
   - docker ps | grep -q travis-ci-build-stages-demo
 #  - python tests.py
 after_success:
-- docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-- export REPO=$DOCKER_USERNAME/travis-ci-build-stages-demo
-- export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
-- docker build -t $REPO:$COMMIT .
-- docker tag $REPO:$COMMIT $REPO:$TAG
-- docker tag $REPO:$COMMIT $REPO:travis-$TRAVIS_BUILD_NUMBER  
-- docker push $REPO
+  - docker login -u $DOCKER_USER -p $DOCKER_PASS
+  - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
+  - docker tag $REPO:$COMMIT $REPO:$TAG
+  - docker tag $REPO:$COMMIT $REPO:travis-$TRAVIS_BUILD_NUMBER
+  - docker push $REPO
