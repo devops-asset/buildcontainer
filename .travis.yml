@@ -1,3 +1,6 @@
+env:
+global:
+- COMMIT=${TRAVIS_COMMIT::8}
 sudo: true
 dist: xenial
 language: python
@@ -16,3 +19,11 @@ before_script:
 script:
   - docker ps | grep -q travis-ci-build-stages-demo
 #  - python tests.py
+after_success:
+- docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+- export REPO=johnsonjr/travis-ci-build-stages-demo
+- export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
+- docker build -f Dockerfile -t $REPO:$COMMIT .
+- docker tag $REPO:$COMMIT $REPO:$TAG
+- docker tag $REPO:$COMMIT $REPO:travis-$TRAVIS_BUILD_NUMBER  
+- docker push $REPO
