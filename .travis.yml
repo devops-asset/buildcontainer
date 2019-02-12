@@ -13,7 +13,7 @@ global:
 
 before_install:
 #  - docker build -t $REPO:$COMMIT .
-   -'docker build --help'.
+   -docker build --help .
   - docker run -d --name travis-ci-build-stages-demo $REPO:$COMMIT
   
 script:
